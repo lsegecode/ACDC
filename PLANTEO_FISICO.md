@@ -180,6 +180,12 @@ $$
 
 **Resultado C:** la nave alcanza una altitud máxima de aproximadamente **474,29 km** respecto de la plataforma.
 
+<p align="center">
+  <img src="caida.svg" alt="Esquema físico de la trayectoria y altitud máxima" width="520" />
+  <br>
+  <em>Esquema de la fase 3: ascenso balístico por inercia hasta la altitud máxima ($h_{\max} \approx 474,29\text{ km}$).</em>
+</p>
+
 ### Diferencia entre velocidad y aceleración
 
 | Estado | Velocidad vertical | Aceleración vertical |
