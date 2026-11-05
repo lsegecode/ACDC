@@ -167,9 +167,9 @@ DatosSimulacion solicitar_datos_entrada(void) {
             printf("\n-----------------------------------------------------\n");
             printf("           RESUMEN DE DATOS INGRESADOS               \n");
             printf("-----------------------------------------------------\n");
-            printf(" 1. Aceleración Fase 1 (a1) : %.2f m/s^2\n", datos.a1);
+            printf(" 1. Aceleracion Fase 1 (a1) : %.2f m/s^2\n", datos.a1);
             printf(" 2. Tiempo inicial (t1)      : %.2f s\n", datos.t1);
-            printf(" 3. Aceleración Fase 2 (a2) : %.2f m/s^2\n", datos.a2);
+            printf(" 3. Aceleracion Fase 2 (a2) : %.2f m/s^2\n", datos.a2);
             printf(" 4. Altitud meta (h)        : %.2f m\n", datos.h);
             printf(" 5. Gravedad (g)            : %.2f m/s^2\n", datos.g);
             printf("-----------------------------------------------------\n");
