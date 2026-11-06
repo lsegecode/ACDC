@@ -7,3 +7,5 @@ Sanabria, Lucas German
 Ramirez, Zahira Nahir
 Vicentin, Valentina
 González, Maria Teresa
+
+![Diagrama de flujo](Flujo_de_trabajo.png)
