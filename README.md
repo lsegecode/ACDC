@@ -38,7 +38,7 @@ Registro de Uso de Inteligencia Artificial
 * **Validación:** Todo el código generado por IA fue revisado, comprendido, integrado y adaptado por nosotros para garantizar su correcto funcionamiento y cumplimiento con los parámetros de la cátedra de Algoritmos y Estructuras de Datos.
 
 
-## Diagrama de flujo del programa
+**Diagrama de Flujo**
 
 ![Diagrama de flujo](Flujo_de_trabajo.png)
 
