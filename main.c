@@ -47,12 +47,15 @@ int main(void)
     int opcion;
     int simulado = 0;
 
-    do {
-        printf("\n=== SIMULADOR ARTEMIS: ASCENSO DEL SLS ===\n");
-        printf("1. Ingresar datos y simular\n");
-        printf("2. Usar datos del enunciado y simular\n");
-        printf("3. Ver resultados\n");
-        printf("4. Salir\n");
+   do {
+        printf("\n==================================================\n");
+        printf("       SIMULADOR ARTEMIS - ASCENSO DEL SLS      \n");
+        printf("==================================================\n");
+        printf(" 1. Ingresar datos de simulacion personalizados\n");
+        printf(" 2. Ejecutar con datos oficiales del enunciado\n");
+        printf(" 3. Ver resultados detallados de la mision\n");
+        printf(" 4. Salir del sistema\n");
+        printf("--------------------------------------------------\n");
         opcion = leer_opcion(1, 4);
 
         switch (opcion) {
@@ -77,7 +80,12 @@ int main(void)
                 }
                 break;
             case 4:
-                printf("\nFin de la mision. Hasta pronto.\n");
+                printf("\n==================================================\n");
+                printf("       CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
+                printf("==================================================\n");
+                printf(" [INFO] Desconectando sistemas de abordo...\n");
+                printf(" [INFO] Sesion finalizada con exito. Hasta pronto!\n");
+                printf("--------------------------------------------------\n");
                 break;
             default:
                 break;
