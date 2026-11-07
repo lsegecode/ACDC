@@ -83,8 +83,8 @@ int main(void)
                 printf("\n==================================================\n");
                 printf("       CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
                 printf("==================================================\n");
-                printf(" [INFO] Desconectando sistemas de abordo...\n");
-                printf(" [INFO] Sesion finalizada con exito. Hasta pronto!\n");
+                printf("  Desconectando sistemas de abordo...\n");
+                printf("  Sesion finalizada con exito. Hasta pronto!\n");
                 printf("--------------------------------------------------\n");
                 break;
             default:
