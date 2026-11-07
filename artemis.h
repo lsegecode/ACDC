@@ -34,6 +34,7 @@ void caida_libre_tras_apagado(const DatosSimulacion *d, ResultadosSimulacion *r)
 double aceleracion_en_g(double a, double g);
 void aceleracion_g_y_presentacion(const DatosSimulacion *d,
                                   const ResultadosSimulacion *r);
- 
+
+void pausar_pantalla(void); 
 #endif
  
