@@ -29,6 +29,9 @@ Registro de Uso de Inteligencia Artificial
   * Revisión de casos de prueba físicos basados en las ecuaciones del enunciado.
 * **Validación:** Todo el código generado por IA fue revisado, comprendido, integrado y adaptado por nosotros para garantizar su correcto funcionamiento y cumplimiento con los parámetros de la cátedra de Algoritmos y Estructuras de Datos.
 
+
+**Diagrama de Flujo**
+
 ![Diagrama de flujo](Flujo_de_trabajo.png)
 
 *Figura 1: flujo del menú principal y de los módulos de la simulación.*
