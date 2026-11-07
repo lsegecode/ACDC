@@ -77,7 +77,7 @@ void caida_libre_tras_apagado(const DatosSimulacion *d, ResultadosSimulacion *r)
 double aceleracion_en_g(double a, double g)
 {
     if (g <= 0.0) {
-        return 0.0;  /* protección: las validaciones ya impiden g <= 0 */
+        return 0.0;  //* protección: las validaciones ya impiden g <= 0 */
     }
     return a / g;
 }
@@ -113,4 +113,14 @@ void aceleracion_g_y_presentacion(const DatosSimulacion *d,
     printf("    Percibida (a1 + g) / g = %.2f g\n",
            aceleracion_en_g((double)d->a1 + d->g, d->g));
     printf("==============================================\n");
+}
+
+/* =====================================================================
+ * Pausa de pantalla para mejorar la experiencia de usuario
+ * ===================================================================== */
+void pausar_pantalla(void) {
+    printf("\n----------------------------------------------\n");
+    printf(" Presione [Enter] para volver al menu principal...");
+    while (getchar() != '\n'); // Limpia el buffer residual
+    getchar();                 // Espera a que el usuario presione Enter para que continue 
 }
