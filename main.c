@@ -71,6 +71,7 @@ int main(void)
             case 3:
                 if (simulado) {
                     aceleracion_g_y_presentacion(&datos, &res);   /* MÓDULO 5 */
+                     pausar_pantalla();
                 } else {
                     printf("\n[!] Primero debe simular (opcion 1 o 2).\n");
                 }
