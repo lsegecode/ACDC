@@ -146,7 +146,7 @@ void aceleracion_g_y_presentacion(const DatosSimulacion *d,
     printf("%s\n", SEPARADOR);
 }
 
-* =====================================================================
+/* =====================================================================
  * Pausa de pantalla para mejorar la experiencia de usuario
  * ===================================================================== */
 void pausar_pantalla(void) {
