@@ -76,7 +76,12 @@ int main(void)
                 }
                 break;
             case 4:
-                printf("\nFin de la mision. Hasta pronto.\n");
+                printf("\n==================================================\n");
+                printf("       CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
+                printf("==================================================\n");
+                printf("  Desconectando sistemas de abordo...\n");
+                printf("  Sesion finalizada con exito. Hasta pronto!\n");
+                printf("--------------------------------------------------\n");
                 break;
             default:
                 break;
