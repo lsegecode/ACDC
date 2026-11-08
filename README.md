@@ -6,7 +6,7 @@ Integrantes:
 - Sanabria, Lucas German
 - Ramirez, Zahira Nahir
 - Vicentin, Valentina
-- González, Maria Teresa
+- González, María Teresa
 
 Descripción del Escenario 1: 
 El sistema interactivo que desarrollamos en lenguaje C simula el **ascenso y propulsión del cohete Space Launch System (SLS)** con la nave Orion. El programa calcula:
