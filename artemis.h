@@ -36,5 +36,8 @@ void aceleracion_g_y_presentacion(const DatosSimulacion *d,
                                   const ResultadosSimulacion *r);
 
 void pausar_pantalla(void); 
+
+/* Reporte final de la sesión */
+void reporte_final(int simulaciones, const ResultadosSimulacion *ultimo);
 #endif
  

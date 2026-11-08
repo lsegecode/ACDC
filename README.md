@@ -21,6 +21,14 @@ El proyecto está dividido en módulos independientes para cumplir con las prác
 * **`artemis.c` / `artemis.h`**: Lógica de negocio, cálculos físicos y estructuración de datos.
 * **`validaciones.c` / `validaciones.h`**: Funciones de ingreso seguro de datos, soporte de comas/puntos y control de errores ante entradas erróneas del usuario.
 
+La documentación y los recursos visuales del escenario están en `Documentacion/`.
+
+Para compilar desde la raíz con GCC:
+
+```sh
+gcc -Wall -Wextra main.c artemis.c validaciones.c -lm -o simulador
+```
+
 Registro de Uso de Inteligencia Artificial
 * **Herramientas utilizadas:** Asistente IA Geminis
 * **Tareas específicas:** 

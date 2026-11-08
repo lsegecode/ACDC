@@ -152,6 +152,24 @@ void aceleracion_g_y_presentacion(const DatosSimulacion *d,
 void pausar_pantalla(void) {
     printf("\n----------------------------------------------\n");
     printf(" Presione [Enter] para volver al menu principal...");
-    while (getchar() != '\n'); // Limpia el buffer residual
-    getchar();                 // Espera a que el usuario presione Enter para que continue 
+    while (getchar() != '\n' && !feof(stdin)) {
+        /* Espera un Enter; leer_opcion ya consumió el salto de línea anterior. */
+    }
+}
+
+void reporte_final(int simulaciones, const ResultadosSimulacion *ultimo)
+{
+    printf("\n==============================================\n");
+    printf("   REPORTE FINAL DE LA SESION\n");
+    printf("==============================================\n");
+    printf("Simulaciones realizadas: %d\n", simulaciones);
+
+    if (simulaciones > 0) {
+        printf("Ultima simulacion:\n");
+        printf("  Rapidez al apagado v2 = %.1f m/s\n", ultimo->v2);
+        printf("  Altitud maxima h_max  = %.2f km\n", ultimo->hmax / 1000.0);
+    } else {
+        printf("No se realizo ninguna simulacion.\n");
+    }
+    printf("==============================================\n");
 }
