@@ -45,7 +45,7 @@ int main(void)
     DatosSimulacion datos;
     ResultadosSimulacion res = {0};
     int opcion;
-    int simulado = 0;
+    int simulaciones = 0;
 
     do {
         printf("\n==================================================\n");
@@ -62,24 +62,25 @@ int main(void)
             case 1:
                 datos = solicitar_datos_entrada();     /* MÓDULO 1 */
                 simular(&datos, &res);
-                simulado = 1;
+                simulaciones++;
                 printf("\nSimulacion completada.\n");
                 break;
             case 2:
                 datos = cargar_datos_enunciado();      /* MÓDULO 1 */
                 simular(&datos, &res);
-                simulado = 1;
+                simulaciones++;
                 printf("\nSimulacion completada con los datos del enunciado.\n");
                 break;
             case 3:
-                if (simulado) {
+                if (simulaciones > 0) {
                     aceleracion_g_y_presentacion(&datos, &res);   /* MÓDULO 5 */
-                     pausar_pantalla();
+                    pausar_pantalla();
                 } else {
                     printf("\n[!] Primero debe simular (opcion 1 o 2).\n");
                 }
                 break;
             case 4:
+                reporte_final(simulaciones, &res);         /* MÓDULO 5 */
                 printf("\n==================================================\n");
                 printf("       CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
                 printf("==================================================\n");
