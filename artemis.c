@@ -145,3 +145,13 @@ void aceleracion_g_y_presentacion(const DatosSimulacion *d,
 
     printf("%s\n", SEPARADOR);
 }
+
+* =====================================================================
+ * Pausa de pantalla para mejorar la experiencia de usuario
+ * ===================================================================== */
+void pausar_pantalla(void) {
+    printf("\n----------------------------------------------\n");
+    printf(" Presione [Enter] para volver al menu principal...");
+    while (getchar() != '\n'); // Limpia el buffer residual
+    getchar();                 // Espera a que el usuario presione Enter para que continue 
+}
