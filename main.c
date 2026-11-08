@@ -48,11 +48,14 @@ int main(void)
     int simulado = 0;
 
     do {
-        printf("\n=== SIMULADOR ARTEMIS: ASCENSO DEL SLS ===\n");
-        printf("1. Ingresar datos y simular\n");
-        printf("2. Usar datos del enunciado y simular\n");
-        printf("3. Ver resultados\n");
-        printf("4. Salir\n");
+        printf("\n==================================================\n");
+        printf("       SIMULADOR ARTEMIS - ASCENSO DEL SLS      \n");
+        printf("==================================================\n");
+        printf(" 1. Ingresar datos de simulacion personalizados\n");
+        printf(" 2. Ejecutar con datos oficiales del enunciado\n");
+        printf(" 3. Ver resultados detallados de la mision\n");
+        printf(" 4. Salir del sistema\n");
+        printf("--------------------------------------------------\n");
         opcion = leer_opcion(1, 4);
 
         switch (opcion) {
