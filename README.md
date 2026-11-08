@@ -23,8 +23,11 @@ Registro de Uso de Inteligencia Artificial:
 Herramientas utilizadas: Asistente IA Geminis
 Tareas específicas:
 -Asistencia en la estructuración de la modularización en archivos .c y .h.
+
 -Optimización de funciones de validación segura de entradas (fgets / strtol).
+
 -Revisión de casos de prueba físicos basados en las ecuaciones del enunciado.
+
 -Validación: Todo el código generado por IA fue revisado, comprendido, integrado y adaptado por nosotros para garantizar su correcto funcionamiento y cumplimiento con los parámetros de la cátedra de Algoritmos y Estructuras de Datos.
 
 ## Diagrama de flujo del programa
