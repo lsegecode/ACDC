@@ -7,7 +7,7 @@
 #define ARTEMIS_H
  
 #include "validaciones.h"
- 
+
 /* Resultados que van calculando los módulos 2, 3 y 4 */
 typedef struct {
     double v1, y1;        /* fase 1, al desacople (módulo 2) */
