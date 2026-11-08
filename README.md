@@ -19,6 +19,8 @@ Descripción del Escenario 1: El sistema interactivo que desarrollamos en lengua
 -La aceleración expresada en múltiplos de la gravedad ($g$) y la carga aparente percibida por la tripulación.
 
 
+
+
 Arquitectura Modular El proyecto está dividido en módulos independientes para cumplir con las prácticas de programación estructurada:
 
 -main.c: Menú interactivo por consola y control del flujo general.
@@ -26,6 +28,8 @@ Arquitectura Modular El proyecto está dividido en módulos independientes para 
 -artemis.c / artemis.h: Lógica de negocio, cálculos físicos y estructuración de datos.
 
 -validaciones.c / validaciones.h: Funciones de ingreso seguro de datos, soporte de comas/puntos y control de errores ante entradas erróneas del usuario.
+
+
 
 
 Registro de Uso de Inteligencia Artificial:
