@@ -6,6 +6,7 @@
 #include <math.h>
 #include "artemis.h"
 
+#define SEPARADOR "=============================================="
 /* =====================================================================
  * MÓDULO 1: Entrada y validación de datos (carga del enunciado)
  * La lectura con validaciones está en validaciones.c.
@@ -81,36 +82,66 @@ double aceleracion_en_g(double a, double g)
     }
     return a / g;
 }
-
-void aceleracion_g_y_presentacion(const DatosSimulacion *d,
-                                  const ResultadosSimulacion *r)
+static void mostrar_datos_mision(const DatosSimulacion *d)
 {
-    printf("\n==============================================\n");
-    printf("   RESULTADOS - ASCENSO DEL SLS / ORION\n");
-    printf("==============================================\n");
-
+    printf("\nDATOS DE LA MISION\n");
+    printf("    %-28s %12.1f m/s^2\n", "Aceleracion fase 1 (a1):", d->a1);
+    printf("    %-28s %12.1f s\n",     "Tiempo hasta desacople (t1):", d->t1);
+    printf("    %-28s %12.1f m/s^2\n", "Aceleracion fase 2 (a2):", d->a2);
+    printf("    %-28s %12.1f m\n",     "Altitud de apagado (h):", d->h);
+    printf("    %-28s %12.2f m/s^2\n", "Gravedad (g):", d->g);
+}
+static void mostrar_pregunta1(const DatosSimulacion *d, const ResultadosSimulacion *r)
+{
     printf("\n[1] Al desacople de los SRB (t = %.1f s)\n", d->t1);
     if (r->hay_fase2) {
-        printf("    Rapidez v1    = %.1f m/s\n", r->v1);
-        printf("    Altitud y1    = %.1f m (%.2f km)\n", r->y1, r->y1 / 1000.0);
+        printf("    %-28s %12.1f m/s\n", "Rapidez v1:", r->v1);
+        printf("    %-28s %12.1f m\n",   "Altitud y1:", r->y1);
+        printf("    %-28s %12.2f km\n",  "Altitud y1 (km):", r->y1 / 1000.0);
     } else {
         printf("    No se alcanza el desacople: la nave llega a h = %.1f m\n", d->h);
         printf("    antes de t1 (y1 teorica = %.1f m >= h).\n", r->y1);
     }
-
+}
+static void mostrar_pregunta2(const DatosSimulacion *d, const ResultadosSimulacion *r)
+{
     printf("\n[2] Rapidez al apagar los motores (h = %.1f m)\n", d->h);
-    printf("    Rapidez v2    = %.1f m/s\n", r->v2);
+    printf("    %-28s %12.1f m/s\n", "Rapidez v2:", r->v2);
     if (!r->hay_fase2) {
         printf("    (calculada solo con la fase 1)\n");
     }
+}
 
+static void mostrar_pregunta3(const DatosSimulacion *d, const ResultadosSimulacion *r)
+{
     printf("\n[3] Altitud maxima si los motores se apagan en h\n");
-    printf("    Ascenso extra = %.1f m\n", r->hmax - d->h);
-    printf("    h_max         = %.1f m (%.2f km)\n", r->hmax, r->hmax / 1000.0);
+    printf("    %-28s %12.1f m\n",  "Ascenso extra:", r->hmax - d->h);
+    printf("    %-28s %12.1f m\n",  "Altitud maxima h_max:", r->hmax);
+    printf("    %-28s %12.2f km\n", "Altitud maxima h_max (km):", r->hmax / 1000.0);
+}
 
+static void mostrar_pregunta4(const DatosSimulacion *d)
+{
     printf("\n[4] Aceleracion maxima de la primera fase\n");
-    printf("    a1 / g                 = %.2f g\n", aceleracion_en_g(d->a1, d->g));
-    printf("    Percibida (a1 + g) / g = %.2f g\n",
+    printf("    %-28s %12.2f g\n", "a1 / g:", aceleracion_en_g(d->a1, d->g));
+    printf("    %-28s %12.2f g\n", "Percibida (a1 + g) / g:",
            aceleracion_en_g((double)d->a1 + d->g, d->g));
-    printf("==============================================\n");
+    printf("    (a1/g es la aceleracion de la nave; (a1+g)/g es lo que siente\n");
+    printf("     la tripulacion, porque ademas sostiene su propio peso)\n");
+}
+
+void aceleracion_g_y_presentacion(const DatosSimulacion *d,
+                                  const ResultadosSimulacion *r)
+{
+    printf("\n%s\n", SEPARADOR);
+    printf("   RESULTADOS - ASCENSO DEL SLS / ORION\n");
+    printf("%s\n", SEPARADOR);
+
+    mostrar_datos_mision(d);
+    mostrar_pregunta1(d, r);
+    mostrar_pregunta2(d, r);
+    mostrar_pregunta3(d, r);
+    mostrar_pregunta4(d);
+
+    printf("%s\n", SEPARADOR);
 }
