@@ -12,7 +12,9 @@ typedef struct {
 
 // Prototipos de funciones
 float leer_flotante_con_defecto(const char *mensaje, float valor_defecto);
+float leer_aceleracion_con_limite(const char *mensaje, float valor_defecto, float limite_max);
 float leer_altitud(const char *mensaje, float valor_defecto_m);
 DatosSimulacion solicitar_datos_entrada(void);
+int validaciones_hubo_fin_entrada(void);
 
 #endif

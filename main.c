@@ -5,6 +5,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "artemis.h"
 #include "validaciones.h"
 
@@ -16,7 +19,7 @@ static int leer_opcion(int minimo, int maximo)
     long valor;
 
     for (;;) {
-        printf("Opcion: ");
+        printf("Opción: ");
         if (fgets(linea, sizeof(linea), stdin) == NULL) {
             printf("\nEntrada finalizada. Cerrando el programa.\n");
             exit(EXIT_FAILURE);
@@ -28,7 +31,7 @@ static int leer_opcion(int minimo, int maximo)
         if (fin != linea && *fin == '\0' && valor >= minimo && valor <= maximo) {
             return (int)valor;
         }
-        printf("  [!] Ingrese un numero entre %d y %d.\n", minimo, maximo);
+        printf("  [!] Ingrese un número entre %d y %d.\n", minimo, maximo);
     }
 }
 
@@ -42,6 +45,10 @@ static void simular(const DatosSimulacion *d, ResultadosSimulacion *r)
 
 int main(void)
 {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
     DatosSimulacion datos;
     ResultadosSimulacion res = {0};
     int opcion;
@@ -51,9 +58,9 @@ int main(void)
         printf("\n==================================================\n");
         printf("       SIMULADOR ARTEMIS - ASCENSO DEL SLS      \n");
         printf("==================================================\n");
-        printf(" 1. Ingresar datos de simulacion personalizados\n");
+        printf(" 1. Ingresar datos de simulación personalizados\n");
         printf(" 2. Ejecutar con datos oficiales del enunciado\n");
-        printf(" 3. Ver resultados detallados de la mision\n");
+        printf(" 3. Ver resultados detallados de la misión\n");
         printf(" 4. Salir del sistema\n");
         printf("--------------------------------------------------\n");
         opcion = leer_opcion(1, 4);
@@ -61,31 +68,32 @@ int main(void)
         switch (opcion) {
             case 1:
                 datos = solicitar_datos_entrada();     /* MÓDULO 1 */
+                if (validaciones_hubo_fin_entrada()) return EXIT_FAILURE;
                 simular(&datos, &res);
                 simulaciones++;
-                printf("\nSimulacion completada.\n");
+                printf("\nSimulación completada.\n");
                 break;
             case 2:
                 datos = cargar_datos_enunciado();      /* MÓDULO 1 */
                 simular(&datos, &res);
                 simulaciones++;
-                printf("\nSimulacion completada con los datos del enunciado.\n");
+                printf("\nSimulación completada con los datos del enunciado.\n");
                 break;
             case 3:
                 if (simulaciones > 0) {
                     aceleracion_g_y_presentacion(&datos, &res);   /* MÓDULO 5 */
                     pausar_pantalla();
                 } else {
-                    printf("\n[!] Primero debe simular (opcion 1 o 2).\n");
+                    printf("\n[!] Primero debe simular (opción 1 o 2).\n");
                 }
                 break;
             case 4:
                 reporte_final(simulaciones, &res);         /* MÓDULO 5 */
                 printf("\n==================================================\n");
-                printf("       CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
+                printf("       CIERRE DE TELEMETRÍA - MISIÓN ARTEMIS      \n");
                 printf("==================================================\n");
                 printf("  Desconectando sistemas de abordo...\n");
-                printf("  Sesion finalizada con exito. Hasta pronto!\n");
+                printf("  Sesión finalizada con éxito. Hasta pronto!\n");
                 printf("--------------------------------------------------\n");
                 break;
             default:
