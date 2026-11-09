@@ -81,7 +81,7 @@ int main(void)
 
                 simular(&datos, &res);
                 simulaciones++;
-                registrar_simulacion(1, res.apogeo);
+                registrar_simulacion(1, (float)(res.hmax / 1000.0));
 
                 printf("\nSimulación completada.\n");
                 break;
@@ -91,7 +91,7 @@ int main(void)
 
                 simular(&datos, &res);
                 simulaciones++;
-                registrar_simulacion(2, res.apogeo);
+                registrar_simulacion(2, (float)(res.hmax / 1000.0));
 
                 printf("\nSimulación completada con los datos del enunciado.\n");
                 break;
