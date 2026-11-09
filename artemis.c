@@ -67,6 +67,17 @@ void caida_libre_tras_apagado(const DatosSimulacion *d, ResultadosSimulacion *r)
 {
     double ascenso_extra = (r->v2 * r->v2) / (2.0 * d->g);
     r->hmax = d->h + ascenso_extra;
+    r->tmax = r->v2 / d->g;
+}
+
+double altura_ascenso_libre(double h, double v2, double g, double t)
+{
+    return h + v2 * t - 0.5 * g * t * t;
+}
+
+double velocidad_ascenso_libre(double v2, double g, double t)
+{
+    return v2 - g * t;
 }
 
 /* =====================================================================
@@ -118,6 +129,15 @@ static void mostrar_pregunta3(const DatosSimulacion *d, const ResultadosSimulaci
     printf("    %-28s %12.1f m\n",  "Ascenso extra:", r->hmax - d->h);
     printf("    %-28s %12.1f m\n",  "Altitud máxima h_max:", r->hmax);
     printf("    %-28s %12.2f km\n", "Altitud máxima h_max (km):", r->hmax / 1000.0);
+    printf("    %-28s %12.2f s\n", "Tiempo hasta altura máxima:", r->tmax);
+    printf("\n    Ascenso sin motores\n");
+    printf("    %-12s %-18s %-16s\n", "Tiempo (s)", "Altura (m)", "Velocidad (m/s)");
+    for (int i = 0; i <= 4; i++) {
+        double tiempo = (i == 4) ? r->tmax : r->tmax * i / 4.0;
+        double altura = altura_ascenso_libre(d->h, r->v2, d->g, tiempo);
+        double velocidad = velocidad_ascenso_libre(r->v2, d->g, tiempo);
+        printf("    %-12.2f %-18.1f %-16.2f\n", tiempo, altura, velocidad);
+    }
 }
 
 static void mostrar_pregunta4(const DatosSimulacion *d)
