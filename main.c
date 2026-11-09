@@ -69,10 +69,11 @@ int main(void)
         printf(" 2. Ejecutar con datos oficiales del enunciado\n");
         printf(" 3. Ver historial de simulaciones\n");
         printf(" 4. Ver resultados detallados de la misión\n");
-        printf(" 5. Salir del sistema\n");
+        printf(" 5. Ver gráfico de trayectoria\n");
+        printf(" 6. Salir del sistema\n");
         printf("--------------------------------------------------\n");
 
-        opcion = leer_opcion(1, 5);
+        opcion = leer_opcion(1, 6);
 
         switch (opcion) {
             case 1:
@@ -81,7 +82,8 @@ int main(void)
 
                 simular(&datos, &res);
                 simulaciones++;
-                registrar_simulacion(1, (float)(res.hmax / 1000.0));
+                registrar_simulacion(TIPO_SIMULACION_PERSONALIZADA,
+                                     res.hmax / 1000.0);
 
                 printf("\nSimulación completada.\n");
                 break;
@@ -91,7 +93,8 @@ int main(void)
 
                 simular(&datos, &res);
                 simulaciones++;
-                registrar_simulacion(2, (float)(res.hmax / 1000.0));
+                registrar_simulacion(TIPO_SIMULACION_OFICIAL,
+                                     res.hmax / 1000.0);
 
                 printf("\nSimulación completada con los datos del enunciado.\n");
                 break;
@@ -111,6 +114,15 @@ int main(void)
                 break;
 
             case 5:
+                if (simulaciones > 0) {
+                    mostrar_grafico_trayectoria_ascii(&datos, &res);
+                    pausar_pantalla();
+                } else {
+                    printf("\n[!] Primero debe simular (opción 1 o 2).\n");
+                }
+                break;
+
+            case 6:
                 reporte_final(simulaciones, &res);  /* MÓDULO 5 */
 
                 printf("\n==================================================\n");
@@ -125,7 +137,7 @@ int main(void)
                 break;
         }
 
-    } while (opcion != 5);
+    } while (opcion != 6);
 
     return 0;
 }

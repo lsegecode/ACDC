@@ -202,45 +202,199 @@ void reporte_final(int simulaciones, const ResultadosSimulacion *ultimo)
     printf("==============================================\n");
 }
 
-#define MAX_HISTORIAL 100
+#define MAX_HISTORIAL 100U
 
-// Memoria estática para el historial de la sesión
+typedef struct {
+    unsigned int id;
+    TipoSimulacion tipo;
+    double apogeo_km;
+} RegistroSimulacion;
+
+/* Arreglo estático: conserva hasta 100 simulaciones mientras el programa está abierto. */
 static RegistroSimulacion historial[MAX_HISTORIAL];
-static int contador_simulaciones = 0;
+static size_t cantidad_simulaciones = 0;
 
-void registrar_simulacion(int tipo_ejecucion, float resultado_apogeo) {
-    if (contador_simulaciones < MAX_HISTORIAL) {
-        historial[contador_simulaciones].id_simulacion = contador_simulaciones + 1;
-        
-        if (tipo_ejecucion == 1) {
-            snprintf(historial[contador_simulaciones].tipo, 30, "Personalizada");
-        } else {
-            snprintf(historial[contador_simulaciones].tipo, 30, "Oficial Enunciado");
-        }
-        
-        historial[contador_simulaciones].apogeo = resultado_apogeo;
-        historial[contador_simulaciones].estado_exitoso = 1;
-        
-        contador_simulaciones++;
+void registrar_simulacion(TipoSimulacion tipo, double apogeo_km)
+{
+    RegistroSimulacion *registro;
+
+    if ((tipo != TIPO_SIMULACION_PERSONALIZADA && tipo != TIPO_SIMULACION_OFICIAL) ||
+        !isfinite(apogeo_km) || apogeo_km < 0.0) {
+        return;
     }
+
+    if (cantidad_simulaciones >= MAX_HISTORIAL) {
+        printf("Historial completo: se alcanzó el límite de %d simulaciones.\n",
+               MAX_HISTORIAL);
+        return;
+    }
+
+    registro = &historial[cantidad_simulaciones];
+    registro->id = (unsigned int)cantidad_simulaciones + 1U;
+    registro->tipo = tipo;
+    registro->apogeo_km = apogeo_km;
+    cantidad_simulaciones++;
 }
 
-void mostrar_historial(void) {
+void mostrar_historial(void)
+{
     printf("\n==================================================\n");
     printf("         HISTORIAL DE SIMULACIONES        \n");
     printf("==================================================\n");
-    
-    if (contador_simulaciones == 0) {
+
+    if (cantidad_simulaciones == 0) {
         printf(" No se ha ejecutado ninguna simulación todavía.\n");
     } else {
-        printf(" ID\tTipo de Simulación\tApogeo Registrado\n");
+        printf(" ID   Tipo de ejecución       Apogeo\n");
         printf(" --------------------------------------------------\n");
-        for (int i = 0; i < contador_simulaciones; i++) {
-            printf(" [%d]\t%-18s\t%.2f km\n", 
-                   historial[i].id_simulacion, 
-                   historial[i].tipo, 
-                   historial[i].apogeo);
+        for (size_t indice = 0; indice < cantidad_simulaciones; indice++) {
+            const char *descripcion_tipo =
+                (historial[indice].tipo == TIPO_SIMULACION_PERSONALIZADA)
+                    ? "Personalizada"
+                    : "Oficial";
+
+            printf(" %3u  %-22s %10.2f km\n",
+                   historial[indice].id,
+                   descripcion_tipo,
+                   historial[indice].apogeo_km);
         }
     }
     printf("==================================================\n");
+}
+
+#define GRAFICO_ANCHO 71
+#define GRAFICO_ALTO  15
+
+void mostrar_grafico_trayectoria_ascii(
+    const DatosSimulacion *datos_simulacion,
+    const ResultadosSimulacion *resultados_simulacion)
+{
+    char matriz_grafico[GRAFICO_ALTO][GRAFICO_ANCHO + 1];
+    double tiempo_separacion;
+    double tiempo_apagado;
+    double tiempo_total;
+    double altura_maxima;
+
+    if (datos_simulacion == NULL || resultados_simulacion == NULL) {
+        printf("No hay trayectoria para graficar.\n");
+        return;
+    }
+
+    altura_maxima = resultados_simulacion->hmax;
+    if (altura_maxima <= 0.0 || datos_simulacion->a1 <= 0.0 ||
+        datos_simulacion->g <= 0.0) {
+        printf("Los datos de la trayectoria no son validos.\n");
+        return;
+    }
+
+    /* Determinar cuándo termina cada fase del ascenso propulsado. */
+    if (resultados_simulacion->hay_fase2) {
+        if (datos_simulacion->a2 <= 0.0) {
+            printf("Los datos de la fase 2 no son validos.\n");
+            return;
+        }
+
+        tiempo_separacion = datos_simulacion->t1;
+        tiempo_apagado = tiempo_separacion +
+            (resultados_simulacion->v2 - resultados_simulacion->v1)
+            / datos_simulacion->a2;
+    } else {
+        tiempo_apagado = sqrt(
+            2.0 * datos_simulacion->h / datos_simulacion->a1
+        );
+        tiempo_separacion = tiempo_apagado;
+    }
+
+    /* tmax mide desde el apagado; el gráfico comienza en el despegue. */
+    tiempo_total = tiempo_apagado + resultados_simulacion->tmax;
+    if (tiempo_total <= 0.0) {
+        printf("No hay trayectoria para graficar.\n");
+        return;
+    }
+
+    /* La matriz contiene 71 muestras por 15 filas; cada fila se imprime como texto. */
+    for (int indice_fila = 0; indice_fila < GRAFICO_ALTO; indice_fila++) {
+        for (int indice_columna = 0; indice_columna < GRAFICO_ANCHO; indice_columna++) {
+            matriz_grafico[indice_fila][indice_columna] = ' ';
+        }
+        matriz_grafico[indice_fila][GRAFICO_ANCHO] = '\0';
+    }
+
+    /* Distribuir las muestras uniformemente desde el despegue hasta el apogeo. */
+    for (int indice_muestra = 0; indice_muestra < GRAFICO_ANCHO; indice_muestra++) {
+        double proporcion_tiempo = (double)indice_muestra / (GRAFICO_ANCHO - 1);
+        double tiempo_actual = tiempo_total * proporcion_tiempo;
+        double altura_actual;
+        char simbolo_etapa;
+
+        if (tiempo_actual < tiempo_separacion) {
+            altura_actual = 0.5 * datos_simulacion->a1
+                          * tiempo_actual * tiempo_actual;
+            simbolo_etapa = '*';
+        } else if (resultados_simulacion->hay_fase2 &&
+                   tiempo_actual < tiempo_apagado) {
+            double tiempo_fase2 = tiempo_actual - tiempo_separacion;
+
+            altura_actual = resultados_simulacion->y1
+                          + resultados_simulacion->v1 * tiempo_fase2
+                          + 0.5 * datos_simulacion->a2
+                          * tiempo_fase2 * tiempo_fase2;
+            simbolo_etapa = '+';
+        } else {
+            double tiempo_desde_apagado = tiempo_actual - tiempo_apagado;
+
+            altura_actual = altura_ascenso_libre(
+                datos_simulacion,
+                resultados_simulacion,
+                tiempo_desde_apagado
+            );
+            simbolo_etapa = '.';
+        }
+
+        /* Convertir altura a fila e invertir el eje vertical: fila 0 es el apogeo. */
+        double proporcion_altura = altura_actual / altura_maxima;
+        int indice_fila = (int)(
+            (1.0 - proporcion_altura) * (GRAFICO_ALTO - 1) + 0.5
+        );
+
+        if (indice_fila < 0) indice_fila = 0;
+        if (indice_fila >= GRAFICO_ALTO) indice_fila = GRAFICO_ALTO - 1;
+        matriz_grafico[indice_fila][indice_muestra] = simbolo_etapa;
+    }
+
+    printf("\nTRAYECTORIA COMPLETA DEL SLS\n");
+    printf("Altura: 0 m (despegue) a %.1f m (maxima)\n", altura_maxima);
+    printf("          +");
+    for (int indice_columna = 0; indice_columna < GRAFICO_ANCHO; indice_columna++) {
+        printf("-");
+    }
+    printf("+\n");
+
+    /* Imprimir las filas y la escala temporal del gráfico. */
+    for (int indice_fila = 0; indice_fila < GRAFICO_ALTO; indice_fila++) {
+        printf("          |%s|\n", matriz_grafico[indice_fila]);
+    }
+
+    printf("          +");
+    for (int indice_columna = 0; indice_columna < GRAFICO_ANCHO; indice_columna++) {
+        printf("-");
+    }
+    printf("+\n");
+    printf("          0 s");
+    printf("%*.2f s\n", GRAFICO_ANCHO - 1, tiempo_total);
+
+    printf("\nETAPAS DEL ASCENSO\n");
+    if (resultados_simulacion->hay_fase2) {
+        printf("  * Etapa 1 - Motores + SRB:       %.2f s | %.1f m\n",
+               tiempo_separacion, resultados_simulacion->y1);
+        printf("  + Etapa 2 - Motores principales: %.2f s | %.1f m\n",
+               tiempo_apagado, datos_simulacion->h);
+    } else {
+        printf("  * Etapa 1 - Motores:             %.2f s | %.1f m\n",
+               tiempo_apagado, datos_simulacion->h);
+        printf("  + Etapa 2 - No se realiza (apagado antes de t1)\n");
+    }
+    printf("  . Etapa 3 - Motores apagados:    %.2f s | %.1f m\n",
+           tiempo_total, resultados_simulacion->hmax);
+    printf("\nLos tiempos se cuentan desde el despegue.\n");
 }
