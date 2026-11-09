@@ -124,3 +124,46 @@ void pausar_pantalla(void) {
     while (getchar() != '\n'); // Limpia el buffer residual
     getchar();                 // Espera a que el usuario presione Enter para que continue 
 }
+
+#define MAX_HISTORIAL 100
+
+// Memoria estática para el historial de la sesión
+static RegistroSimulacion historial[MAX_HISTORIAL];
+static int contador_simulaciones = 0;
+
+void registrar_simulacion(int tipo_ejecucion, float resultado_apogeo) {
+    if (contador_simulaciones < MAX_HISTORIAL) {
+        historial[contador_simulaciones].id_simulacion = contador_simulaciones + 1;
+        
+        if (tipo_ejecucion == 1) {
+            snprintf(historial[contador_simulaciones].tipo, 30, "Personalizada");
+        } else {
+            snprintf(historial[contador_simulaciones].tipo, 30, "Oficial Enunciado");
+        }
+        
+        historial[contador_simulaciones].apogeo = resultado_apogeo;
+        historial[contador_simulaciones].estado_exitoso = 1;
+        
+        contador_simulaciones++;
+    }
+}
+
+void mostrar_historial(void) {
+    printf("\n==================================================\n");
+    printf("         HISTORIAL DE SIMULACIONES        \n");
+    printf("==================================================\n");
+    
+    if (contador_simulaciones == 0) {
+        printf(" No se ha ejecutado ninguna simulación todavía.\n");
+    } else {
+        printf(" ID\tTipo de Simulación\tApogeo Registrado\n");
+        printf(" --------------------------------------------------\n");
+        for (int i = 0; i < contador_simulaciones; i++) {
+            printf(" [%d]\t%-18s\t%.2f km\n", 
+                   historial[i].id_simulacion, 
+                   historial[i].tipo, 
+                   historial[i].apogeo);
+        }
+    }
+    printf("==================================================\n");
+}
