@@ -32,10 +32,13 @@ void fase2_mruv_velocidad_inicial(const DatosSimulacion *d, ResultadosSimulacion
 void caida_libre_tras_apagado(const DatosSimulacion *d, ResultadosSimulacion *r);
 
 /* Ascenso sin motores: y(t)=h+v2*t-0.5*g*t^2; v(t)=v2-g*t.
-   h: altitud al apagado (m), v2: velocidad inicial (m/s),
-   g: gravedad (m/s^2), t: tiempo desde el apagado (s). */
-double altura_ascenso_libre(double h, double v2, double g, double t);
-double velocidad_ascenso_libre(double v2, double g, double t);
+   Usa h y g de DatosSimulacion y v2 de ResultadosSimulacion. */
+double altura_ascenso_libre(const DatosSimulacion *d,
+                            const ResultadosSimulacion *r,
+                            double t);
+double velocidad_ascenso_libre(const DatosSimulacion *d,
+                               const ResultadosSimulacion *r,
+                               double t);
  
 /* MÓDULO 5: Aceleración en múltiplos de g y presentación */
 double aceleracion_en_g(double a, double g);

@@ -70,14 +70,22 @@ void caida_libre_tras_apagado(const DatosSimulacion *d, ResultadosSimulacion *r)
     r->tmax = r->v2 / d->g;
 }
 
-double altura_ascenso_libre(double h, double v2, double g, double t)
+double altura_ascenso_libre(
+    const DatosSimulacion *d,
+    const ResultadosSimulacion *r,
+    double t
+)
 {
-    return h + v2 * t - 0.5 * g * t * t;
+    return d->h + r->v2 * t - 0.5 * d->g * t * t;
 }
 
-double velocidad_ascenso_libre(double v2, double g, double t)
+double velocidad_ascenso_libre(
+    const DatosSimulacion *d,
+    const ResultadosSimulacion *r,
+    double t
+)
 {
-    return v2 - g * t;
+    return r->v2 - d->g * t;
 }
 
 /* =====================================================================
@@ -134,8 +142,8 @@ static void mostrar_pregunta3(const DatosSimulacion *d, const ResultadosSimulaci
     printf("    %-12s %-18s %-16s\n", "Tiempo (s)", "Altura (m)", "Velocidad (m/s)");
     for (int i = 0; i <= 4; i++) {
         double tiempo = (i == 4) ? r->tmax : r->tmax * i / 4.0;
-        double altura = altura_ascenso_libre(d->h, r->v2, d->g, tiempo);
-        double velocidad = velocidad_ascenso_libre(r->v2, d->g, tiempo);
+        double altura = altura_ascenso_libre(d, r, tiempo);
+        double velocidad = velocidad_ascenso_libre(d, r, tiempo);
         printf("    %-12.2f %-18.1f %-16.2f\n", tiempo, altura, velocidad);
     }
 }
