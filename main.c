@@ -47,49 +47,63 @@ int main(void)
     int opcion;
     int simulado = 0;
 
-   do {
-        printf("\n==================================================\n");
-        printf("       SIMULADOR ARTEMIS - ASCENSO DEL SLS      \n");
-        printf("==================================================\n");
-        printf(" 1. Ingresar datos de simulacion personalizados\n");
-        printf(" 2. Ejecutar con datos oficiales del enunciado\n");
-        printf(" 3. Ver resultados detallados de la mision\n");
-        printf(" 4. Salir del sistema\n");
-        printf("--------------------------------------------------\n");
-        opcion = leer_opcion(1, 4);
-
-        switch (opcion) {
-            case 1:
-                datos = solicitar_datos_entrada();     /* MÓDULO 1 */
-                simular(&datos, &res);
-                simulado = 1;
-                printf("\nSimulacion completada.\n");
-                break;
-            case 2:
-                datos = cargar_datos_enunciado();      /* MÓDULO 1 */
-                simular(&datos, &res);
-                simulado = 1;
-                printf("\nSimulacion completada con los datos del enunciado.\n");
-                break;
-            case 3:
-                if (simulado) {
-                    aceleracion_g_y_presentacion(&datos, &res);   /* MÓDULO 5 */
-                    pausar_pantalla();
-                } else {
-                    printf("\n[!] Primero debe simular (opcion 1 o 2).\n");
-                }
-                break;
-            case 4:
-                printf("\n==================================================\n");
-                printf("       CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
-                printf("==================================================\n");
-                printf("  Desconectando sistemas de abordo...\n");
-                printf("  Sesion finalizada con exito. Hasta pronto!\n");
-                printf("--------------------------------------------------\n");
-                break;
-            default:
-                break;
-        }
+do {
+    printf("\n==================================================\n");
+    printf("         SIMULADOR ARTEMIS - ASCENSO DEL SLS       \n");
+    printf("==================================================\n");
+    printf("1. Ingresar datos de simulacion personalizados\n");
+    printf("2. Ejecutar con datos oficiales del enunciado\n");
+    printf("3. Ver historial de simulaciones\n");           // NUEVO
+    printf("4. Ver resultados detallados de la mision\n");     // Movido al 4
+    printf("5. Salir del sistema\n");                          // Movido al 5
+    printf("--------------------------------------------------\n");
+    
+    opcion = leer_opcion(1, 5); // Actualizado de 4 a 5
+    
+    switch (opcion) {
+        case 1:
+            datos = solicitar_datos_entrada();   /* MÓDULO 1 */
+            simular(&datos, &res);
+            simulado = 1;
+            registrar_simulacion(1, res.apogeo); // Registra en el historial (cambia 'res.apogeo' si la variable de resultado se llama distinto)
+            printf("\nSimulacion completada.\n");
+            break;
+            
+        case 2:
+            datos = cargar_datos_enunciado();    /* MÓDULO 1 */
+            simular(&datos, &res);
+            simulado = 1;
+            registrar_simulacion(2, res.apogeo); // Registra en el historial
+            printf("\nSimulacion completada con los datos del enunciado.\n");
+            break;
+            
+        case 3:
+            mostrar_historial();                 // Muestra la tabla de simulaciones previas
+            pausar_pantalla();
+            break;
+            
+        case 4:
+            if (simulado) {
+                aceleracion_g_y_presentacion(&datos, &res);   /* MÓDULO 5 */
+                pausar_pantalla();
+            } else {
+                printf("\n[!] Primero debe simular (opcion 1 o 2).\n");
+            }
+            break;
+            
+        case 5:
+            printf("\n==================================================\n");
+            printf("         CIERRE DE TELEMETRIA - MISION ARTEMIS      \n");
+            printf("==================================================\n");
+            printf("  Desconectando sistemas de abordo...\n");
+            printf("  Sesion finalizada con exito. Hasta pronto!\n");
+            printf("--------------------------------------------------\n");
+            break;
+            
+        default:
+            break;
+    }
+} while (opcion != 5); // Termina al seleccionar salir
     } while (opcion != 4);
 
     return 0;
