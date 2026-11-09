@@ -13,6 +13,7 @@ typedef struct {
     double v1, y1;        /* fase 1, al desacople (módulo 2) */
     double v2;            /* rapidez al apagar los motores (módulo 3) */
     double hmax;          /* altitud máxima en caída libre (módulo 4) */
+    double tmax;          /* tiempo desde el apagado hasta la altitud máxima (s) */
     int    hay_fase2;     /* 1 si el desacople ocurre antes de llegar a h */
 } ResultadosSimulacion;
  
@@ -29,6 +30,12 @@ void fase2_mruv_velocidad_inicial(const DatosSimulacion *d, ResultadosSimulacion
  
 /* MÓDULO 4: Caída libre tras el apagado */
 void caida_libre_tras_apagado(const DatosSimulacion *d, ResultadosSimulacion *r);
+
+/* Ascenso sin motores: y(t)=h+v2*t-0.5*g*t^2; v(t)=v2-g*t.
+   h: altitud al apagado (m), v2: velocidad inicial (m/s),
+   g: gravedad (m/s^2), t: tiempo desde el apagado (s). */
+double altura_ascenso_libre(double h, double v2, double g, double t);
+double velocidad_ascenso_libre(double v2, double g, double t);
  
 /* MÓDULO 5: Aceleración en múltiplos de g y presentación */
 double aceleracion_en_g(double a, double g);
