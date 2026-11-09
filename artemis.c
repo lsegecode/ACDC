@@ -97,7 +97,7 @@ double velocidad_ascenso_libre(
 double aceleracion_en_g(double a, double g)
 {
     if (g <= 0.0) {
-        return 0.0;  /* protección: las validaciones ya impiden g <= 0 */
+        return 0.0;  //* protección: las validaciones ya impiden g <= 0 */
     }
     return a / g;
 }
