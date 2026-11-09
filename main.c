@@ -1,3 +1,4 @@
+
 /*
  * main.c
  * MÓDULO 6: main.c (menú y flujo general)
@@ -8,6 +9,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
 #include "artemis.h"
 #include "validaciones.h"
 
@@ -24,13 +26,17 @@ static int leer_opcion(int minimo, int maximo)
             printf("\nEntrada finalizada. Cerrando el programa.\n");
             exit(EXIT_FAILURE);
         }
+
         valor = strtol(linea, &fin, 10);
+
         while (*fin == ' ' || *fin == '\t' || *fin == '\r' || *fin == '\n') {
             fin++;
         }
+
         if (fin != linea && *fin == '\0' && valor >= minimo && valor <= maximo) {
             return (int)valor;
         }
+
         printf("  [!] Ingrese un número entre %d y %d.\n", minimo, maximo);
     }
 }
@@ -49,6 +55,7 @@ int main(void)
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 #endif
+
     DatosSimulacion datos;
     ResultadosSimulacion res = {0};
     int opcion;
@@ -60,35 +67,52 @@ int main(void)
         printf("==================================================\n");
         printf(" 1. Ingresar datos de simulación personalizados\n");
         printf(" 2. Ejecutar con datos oficiales del enunciado\n");
-        printf(" 3. Ver resultados detallados de la misión\n");
-        printf(" 4. Salir del sistema\n");
+        printf(" 3. Ver historial de simulaciones\n");
+        printf(" 4. Ver resultados detallados de la misión\n");
+        printf(" 5. Salir del sistema\n");
         printf("--------------------------------------------------\n");
-        opcion = leer_opcion(1, 4);
+
+        opcion = leer_opcion(1, 5);
 
         switch (opcion) {
             case 1:
-                datos = solicitar_datos_entrada();     /* MÓDULO 1 */
+                datos = solicitar_datos_entrada();  /* MÓDULO 1 */
                 if (validaciones_hubo_fin_entrada()) return EXIT_FAILURE;
+
                 simular(&datos, &res);
                 simulaciones++;
+                registrar_simulacion(1, res.apogeo);
+
                 printf("\nSimulación completada.\n");
                 break;
+
             case 2:
-                datos = cargar_datos_enunciado();      /* MÓDULO 1 */
+                datos = cargar_datos_enunciado();   /* MÓDULO 1 */
+
                 simular(&datos, &res);
                 simulaciones++;
+                registrar_simulacion(2, res.apogeo);
+
                 printf("\nSimulación completada con los datos del enunciado.\n");
                 break;
+
             case 3:
+                mostrar_historial();
+                pausar_pantalla();
+                break;
+
+            case 4:
                 if (simulaciones > 0) {
-                    aceleracion_g_y_presentacion(&datos, &res);   /* MÓDULO 5 */
+                    aceleracion_g_y_presentacion(&datos, &res); /* MÓDULO 5 */
                     pausar_pantalla();
                 } else {
                     printf("\n[!] Primero debe simular (opción 1 o 2).\n");
                 }
                 break;
-            case 4:
-                reporte_final(simulaciones, &res);         /* MÓDULO 5 */
+
+            case 5:
+                reporte_final(simulaciones, &res);  /* MÓDULO 5 */
+
                 printf("\n==================================================\n");
                 printf("       CIERRE DE TELEMETRÍA - MISIÓN ARTEMIS      \n");
                 printf("==================================================\n");
@@ -96,10 +120,12 @@ int main(void)
                 printf("  Sesión finalizada con éxito. Hasta pronto!\n");
                 printf("--------------------------------------------------\n");
                 break;
+
             default:
                 break;
         }
-    } while (opcion != 4);
+
+    } while (opcion != 5);
 
     return 0;
 }
