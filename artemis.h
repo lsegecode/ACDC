@@ -36,5 +36,16 @@ void aceleracion_g_y_presentacion(const DatosSimulacion *d,
                                   const ResultadosSimulacion *r);
 
 void pausar_pantalla(void); 
+
+// Estructura y prototipos para el Historial
+typedef struct {
+    int id_simulacion;
+    char tipo[30];      // "Personalizada" o "Oficial Enunciado"
+    float apogeo;       // Métrica principal de la simulación
+    int estado_exitoso; 
+} RegistroSimulacion;
+
+void registrar_simulacion(int tipo_ejecucion, float resultado_apogeo);
+void mostrar_historial(void);
 #endif
  
