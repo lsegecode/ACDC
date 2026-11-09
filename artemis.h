@@ -50,15 +50,17 @@ void pausar_pantalla(void);
 /* Reporte final de la sesión */
 void reporte_final(int simulaciones, const ResultadosSimulacion *ultimo);
 
-// Estructura y prototipos para el Historial
-typedef struct {
-    int id_simulacion;
-    char tipo[30];      // "Personalizada" o "Oficial Enunciado"
-    float apogeo;       // Métrica principal de la simulación
-    int estado_exitoso; 
-} RegistroSimulacion;
+/* Historial de ejecuciones, guardado en memoria durante la sesión. */
+typedef enum {
+    TIPO_SIMULACION_PERSONALIZADA,
+    TIPO_SIMULACION_OFICIAL
+} TipoSimulacion;
 
-void registrar_simulacion(int tipo_ejecucion, float resultado_apogeo);
+void registrar_simulacion(TipoSimulacion tipo, double apogeo_km);
 void mostrar_historial(void);
+
+/* Muestra la trayectoria completa del ascenso mediante un gráfico ASCII. */
+void mostrar_grafico_trayectoria_ascii(const DatosSimulacion *datos_simulacion,
+                                       const ResultadosSimulacion *resultados_simulacion);
 #endif
  
