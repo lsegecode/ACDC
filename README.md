@@ -7,3 +7,6 @@ Sanabria, Lucas German
 Ramirez, Zahira Nahir
 Vicentin, Valentina
 González, Maria Teresa
+
+Rama correspondiente al Módulo de ingreso de datos para el programa. En el mismo, se encuentra validaciones.c y validaciones.h que se utilizarán para el programa principal, se espera que se ingresen datos para la resolución del escenario o también se pueden dejar los datos que ya vienen en dicho problema.
+Este módulo está compuesto por funciones que verifican el ingreso de información del usuario y su validación, por ejemplo, el ingreso de valores con coma, conversión de unidades, definición de rangos seguros de la aceleración.
