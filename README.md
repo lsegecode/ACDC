@@ -25,7 +25,7 @@ El proyecto está dividido en módulos independientes para cumplir con las prác
 - **`artemis.c` / `artemis.h`**: Lógica de negocio, cálculos físicos y estructuración de datos.
 - **`validaciones.c` / `validaciones.h`**: Funciones de ingreso seguro de datos, soporte de comas/puntos y control de errores ante entradas erróneas del usuario.
 
-La documentación física y el diagrama del escenario están en `Introduccion/`.
+La documentación física y el diagrama del escenario están en `Documentacion/`.
 
 Para compilar desde la raíz con GCC:
 
