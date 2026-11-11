@@ -1,20 +1,18 @@
 #ifndef VALIDACIONES_H
 #define VALIDACIONES_H
 
-// Estructura que empaqueta los 5 datos de entrada para compartirlos con otros módulos
-typedef struct {
-    float a1; // Aceleración Fase 1 (m/s²)
-    float t1; // Tiempo inicial hasta desacople SRB (s)
-    float a2; // Aceleración Fase 2 (m/s²)
-    float h;  // Altitud de apagado de motores (m)
-    float g;  // Aceleración de la gravedad (m/s²)
-} DatosSimulacion;
+#include <stdbool.h>
 
-// Prototipos de funciones
-float leer_flotante_con_defecto(const char *mensaje, float valor_defecto);
-float leer_aceleracion_con_limite(const char *mensaje, float valor_defecto, float limite_max);
-float leer_altitud(const char *mensaje, float valor_defecto_m);
-DatosSimulacion solicitar_datos_entrada(void);
-int validaciones_hubo_fin_entrada(void);
+/* Pide un entero entre min y max (inclusive). Repite hasta que sea valido. */
+int leer_opcion(const char *mensaje, int min, int max);
 
-#endif
+/* Pide un numero > 0. Enter = valor por defecto. Acepta coma o punto.
+   Si acepta_km es true, permite escribir "160 km" y lo pasa a metros.
+   Rechaza letras, vacios, NaN, infinitos, ceros y negativos. */
+double leer_numero(const char *nombre, const char *unidad,
+                   double defecto, bool acepta_km);
+
+/* Devuelve el numero como texto con coma decimal (buffer rotativo). */
+const char *fmt(double valor, int decimales);
+
+#endif /* VALIDACIONES_H */
