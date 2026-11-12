@@ -26,3 +26,24 @@ Por ejemplo:
 6. Verificar que el proyecto compile correctamente después de los cambios.
 
 ## Al finalizar, presentar un resumen de los nombres modificados y confirmar si se conservaron el funcionamiento y los resultados originales.
+
+
+---
+
+## Reordenar el menú a 7 opciones con la integración del módulo por separado
+
+Prompt utilizado (asistente: Claude):
+
+> Reordenar el menú a 7 opciones con la integración del módulo por separado.
+>
+> 1. Ingresar los datos
+> 2. Ejecutar con los datos oficiales
+> 3. Ver resultados detallados de la última misión (solo este punto cambia, el resto queda igual)
+> 4. Ver historial de simulaciones
+> 5. Ver gráfico de trayectoria
+> 6. Ejecutar un módulo por separado (con la posibilidad de que ejecute con los datos oficiales si ingresa Enter)
+> 7. Salir del sistema
+>
+> Si la rama del compañero no reutiliza las funciones, modificar el código para que reutilice las funciones que escribieron los compañeros. El código deberá ser reutilizable.
+
+Resultado: se modificó `main.c` (menú de 7 opciones y función `ejecutar_modulo_individual`, que reutiliza las funciones de `validaciones.c` y `artemis.c`) y se movió `Flujo_de_trabajo.png` a `Documentacion/`.
