@@ -44,6 +44,5 @@ Prompt utilizado (asistente: Claude):
 > 6. Ejecutar un módulo por separado (con la posibilidad de que ejecute con los datos oficiales si ingresa Enter)
 > 7. Salir del sistema
 >
-> Si la rama del compañero no reutiliza las funciones, modificar el código para que reutilice las funciones que escribieron los compañeros. El código deberá ser reutilizable.
 
 Resultado: se modificó `main.c` (menú de 7 opciones y función `ejecutar_modulo_individual`, que reutiliza las funciones de `validaciones.c` y `artemis.c`) y se movió `Flujo_de_trabajo.png` a `Documentacion/`.
