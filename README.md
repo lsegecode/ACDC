@@ -44,6 +44,6 @@ Registro de Uso de Inteligencia Artificial
 
 **Diagrama de Flujo**
 
-![Diagrama de flujo](Flujo_de_trabajo.png)
+![Diagrama de flujo](Documentacion/Flujo_de_trabajo.png)
 
 _Figura 1: flujo del menú principal y de los módulos de la simulación._

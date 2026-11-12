@@ -49,6 +49,89 @@ static void simular(const DatosSimulacion *d, ResultadosSimulacion *r)
     caida_libre_tras_apagado(d, r);       /* MÓDULO 4 */
 }
 
+/* ---------------------------------------------------------------------
+ * Opción 6: ejecutar un módulo por separado.
+ * Reutiliza las funciones de validaciones.c (lectura con Enter = valor del
+ * enunciado) y de artemis.c (módulos 2 a 5). Cada módulo pide solo los
+ * datos que necesita; los demás quedan con los valores oficiales.
+ * ------------------------------------------------------------------- */
+static void ejecutar_modulo_individual(void)
+{
+    DatosSimulacion d = cargar_datos_enunciado();   /* valores oficiales */
+    ResultadosSimulacion r = {0};
+    int modulo;
+
+    printf("\n--- MÓDULOS INDIVIDUALES ---\n");
+    printf(" 1. Módulo 1: Entrada y validación de datos\n");
+    printf(" 2. Módulo 2: Fase 1 y chequeo de coherencia\n");
+    printf(" 3. Módulo 3: Fase 2 (MRUV con velocidad inicial)\n");
+    printf(" 4. Módulo 4: Caída libre tras el apagado\n");
+    printf(" 5. Módulo 5: Aceleración en múltiplos de g\n");
+    printf(" 6. Volver al menú principal\n");
+    modulo = leer_opcion(1, 6);
+
+    switch (modulo) {
+        case 1:
+            d = solicitar_datos_entrada();
+            if (validaciones_hubo_fin_entrada()) exit(EXIT_FAILURE);
+            printf("\nDatos validados correctamente.\n");
+            break;
+
+        case 2:
+            printf("\nDatos que necesita el módulo 2 (Enter = valor oficial):\n");
+            d.a1 = leer_aceleracion_con_limite("Aceleración de la Fase 1 (m/s^2)", d.a1, 50.0f);
+            d.t1 = leer_flotante_con_defecto("Tiempo hasta desacople SRB (s)", d.t1);
+            d.h  = leer_altitud("Altitud de apagado de motores", d.h);
+            if (validaciones_hubo_fin_entrada()) exit(EXIT_FAILURE);
+            fase1_chequeo_coherencia(&d, &r);
+            printf("\n  v1 = %.1f m/s\n  y1 = %.1f m (%.2f km)\n",
+                   r.v1, r.y1, r.y1 / 1000.0);
+            if (!r.hay_fase2) {
+                printf("  [!] y1 >= h: no hay fase 2 (la nave llega a h antes del desacople).\n");
+            }
+            break;
+
+        case 3:
+            printf("\nDatos que necesita el módulo 3 (Enter = valor oficial):\n");
+            d.a1 = leer_aceleracion_con_limite("Aceleración de la Fase 1 (m/s^2)", d.a1, 50.0f);
+            d.t1 = leer_flotante_con_defecto("Tiempo hasta desacople SRB (s)", d.t1);
+            d.a2 = leer_aceleracion_con_limite("Aceleración de la Fase 2 (m/s^2)", d.a2, 50.0f);
+            d.h  = leer_altitud("Altitud de apagado de motores", d.h);
+            if (validaciones_hubo_fin_entrada()) exit(EXIT_FAILURE);
+            fase1_chequeo_coherencia(&d, &r);       /* da v1, y1 */
+            fase2_mruv_velocidad_inicial(&d, &r);
+            printf("\n  Rapidez al apagado v2 = %.1f m/s\n", r.v2);
+            if (!r.hay_fase2) {
+                printf("  (no hay fase 2: calculada solo con la fase 1)\n");
+            }
+            break;
+
+        case 4:
+            printf("\nDatos que necesita el módulo 4 (Enter = valor oficial):\n");
+            r.v2 = leer_flotante_con_defecto("Rapidez al apagado v2 (m/s)", 2481.94f);
+            d.h  = leer_altitud("Altitud de apagado de motores", d.h);
+            d.g  = leer_flotante_con_defecto("Aceleración de la gravedad (m/s^2)", d.g);
+            if (validaciones_hubo_fin_entrada()) exit(EXIT_FAILURE);
+            caida_libre_tras_apagado(&d, &r);
+            printf("\n  Ascenso extra = %.1f m\n  Altitud máxima = %.1f m (%.2f km)\n",
+                   r.hmax - d.h, r.hmax, r.hmax / 1000.0);
+            break;
+
+        case 5:
+            printf("\nDatos que necesita el módulo 5 (Enter = valor oficial):\n");
+            d.a1 = leer_aceleracion_con_limite("Aceleración de la Fase 1 (m/s^2)", d.a1, 50.0f);
+            d.g  = leer_flotante_con_defecto("Aceleración de la gravedad (m/s^2)", d.g);
+            if (validaciones_hubo_fin_entrada()) exit(EXIT_FAILURE);
+            printf("\n  Aceleración máxima de la fase 1 = %.2f g\n",
+                   aceleracion_en_g(d.a1, d.g));
+            break;
+
+        default:
+            return;
+    }
+    pausar_pantalla();
+}
+
 int main(void)
 {
 #ifdef _WIN32
@@ -67,13 +150,14 @@ int main(void)
         printf("==================================================\n");
         printf(" 1. Ingresar datos de simulación personalizados\n");
         printf(" 2. Ejecutar con datos oficiales del enunciado\n");
-        printf(" 3. Ver historial de simulaciones\n");
-        printf(" 4. Ver resultados detallados de la misión\n");
+        printf(" 3. Ver resultados detallados de la última misión\n");
+        printf(" 4. Ver historial de simulaciones\n");
         printf(" 5. Ver gráfico de trayectoria\n");
-        printf(" 6. Salir del sistema\n");
+        printf(" 6. Ejecutar un módulo por separado\n");
+        printf(" 7. Salir del sistema\n");
         printf("--------------------------------------------------\n");
 
-        opcion = leer_opcion(1, 6);
+        opcion = leer_opcion(1, 7);
 
         switch (opcion) {
             case 1:
@@ -99,12 +183,12 @@ int main(void)
                 printf("\nSimulación completada con los datos del enunciado.\n");
                 break;
 
-            case 3:
+            case 4:
                 mostrar_historial();
                 pausar_pantalla();
                 break;
 
-            case 4:
+            case 3:
                 if (simulaciones > 0) {
                     aceleracion_g_y_presentacion(&datos, &res); /* MÓDULO 5 */
                     pausar_pantalla();
@@ -123,6 +207,10 @@ int main(void)
                 break;
 
             case 6:
+                ejecutar_modulo_individual();
+                break;
+
+            case 7:
                 reporte_final(simulaciones, &res);  /* MÓDULO 5 */
 
                 printf("\n==================================================\n");
@@ -137,7 +225,7 @@ int main(void)
                 break;
         }
 
-    } while (opcion != 6);
+    } while (opcion != 7);
 
     return 0;
 }
