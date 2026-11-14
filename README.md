@@ -4,11 +4,11 @@ Laboratorio C de algoritmos y estructura de datos - ISI D - Escenario 1
 
 Integrantes:
 
-- Cabral Viola, Luka
-- Sanabria, Lucas German
 - Ramirez, Zahira Nahir
 - Vicentin, Valentina
 - González, María Teresa
+- Cabral Viola, Luka
+- Sanabria, Lucas German
 
 Descripción del Escenario 1:
 El sistema interactivo que desarrollamos en lenguaje C simula el **ascenso y propulsión del cohete Space Launch System (SLS)** con la nave Orion. El programa calcula:
@@ -27,19 +27,27 @@ El proyecto está dividido en módulos independientes para cumplir con las prác
 
 La documentación física y el diagrama del escenario están en `Documentacion/`.
 
-Para compilar desde la raíz con GCC:
+## Compilación y ejecución
+
+Requisitos: GCC y `make` (en Windows con MinGW/WinLibs el comando es `mingw32-make`).
+
+Desde la raíz del repositorio:
 
 ```sh
-gcc -Wall -Wextra -finput-charset=UTF-8 -fexec-charset=UTF-8 main.c artemis.c validaciones.c -lm -o simulador
+make          # compila y genera el ejecutable "simulador"
+make run      # compila (si hace falta) y ejecuta
+make clean    # borra objetos y ejecutable
 ```
 
-Registro de Uso de Inteligencia Artificial
+Para ejecutar manualmente después de compilar: `./simulador` (en Windows, `simulador.exe`).
 
-- **Herramientas utilizadas:** Asistente IA Geminis
+## Registro de Uso de Inteligencia Artificial
+
+- **Herramientas utilizadas:** Gemini y Claude (Anthropic, mediante Claude Code).
 - **Tareas específicas:**
-  - Asistencia en la estructuración de la modularización en archivos `.c` y `.h`.
-  - Optimización de funciones de validación segura de entradas (`fgets` / `strtol`).
-  - Revisión de casos de prueba físicos basados en las ecuaciones del enunciado.
+  - Gemini: asistencia en la estructuración de la modularización en archivos `.c` y `.h`; optimización de funciones de validación segura de entradas (`fgets` / `strtol`); revisión de casos de prueba físicos basados en las ecuaciones del enunciado.
+  - Claude: renombrado de variables a nombres descriptivos en `snake_case`, reordenamiento del menú a 7 opciones con la ejecución de módulos por separado, redacción de la documentación, creación del `Makefile` y revisión del proyecto contra la rúbrica de la cátedra.
+- **Prompts utilizados:** están registrados textualmente en [`Documentacion/prompts.md`](Documentacion/prompts.md).
 - **Validación:** Todo el código generado por IA fue revisado, comprendido, integrado y adaptado por nosotros para garantizar su correcto funcionamiento y cumplimiento con los parámetros de la cátedra de Algoritmos y Estructuras de Datos.
 
 **Diagramas de flujo detallados**

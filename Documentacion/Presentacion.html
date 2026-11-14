@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador Artemis · Escenario 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Concepto: consola de control de misión. Escenario fijo 1920x1080 escalado a la ventana.
+   Un único acento (naranja de ignición); el resto es azul-negro y gris frío. */
+:root{
+  --bg:#0a0e17;
+  --panel:#111826;
+  --line:#243049;
+  --fg:#e8edf6;
+  --muted:#8b97ad;
+  --accent:#ff6a2b;
+  --ok:#4fd1a1;
+  --display:"Space Grotesk",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#05070c;color:var(--fg);font-family:var(--display);overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;background:var(--bg);overflow:hidden}
+.slide{position:absolute;inset:0;padding:96px 120px 120px;display:none;flex-direction:column}
+.slide.active{display:flex;animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none}}
+
+.tag{font-family:var(--mono);font-size:22px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
+h1{font-size:132px;line-height:.98;font-weight:700;letter-spacing:-.03em;text-wrap:balance}
+h2{font-size:76px;line-height:1.05;font-weight:700;letter-spacing:-.02em;margin-bottom:48px;text-wrap:balance;max-width:1240px}
+p,li{font-size:34px;line-height:1.45;color:var(--muted)}
+b,strong{color:var(--fg);font-weight:500}
+code,.mono{font-family:var(--mono)}
+.lead{font-size:40px;max-width:1300px}
+
+.hud{position:absolute;left:120px;right:120px;bottom:44px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:20px;color:var(--muted);letter-spacing:.08em}
+.bar{position:absolute;left:0;bottom:0;height:5px;background:var(--accent);transition:width .3s}
+
+/* portada */
+.cover{justify-content:flex-end;padding-bottom:150px}
+.cover .grid{position:absolute;inset:0;background:
+  linear-gradient(var(--line) 1px,transparent 1px) 0 0/120px 120px,
+  linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/120px 120px;opacity:.35;
+  mask-image:linear-gradient(to top,#000 10%,transparent 75%)}
+.cover .hero{position:absolute;right:0;top:0;height:100%;width:auto;object-fit:cover;
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 38%);mask-image:linear-gradient(to right,transparent 0,#000 38%)}
+.cover h1{font-size:116px}
+.cover .sub,.cover .meta{max-width:1000px}
+.cover>*{position:relative}
+.cover .sub{font-size:44px;color:var(--muted);margin-top:36px}
+.cover .meta{margin-top:70px;font-family:var(--mono);font-size:24px;color:var(--muted);letter-spacing:.06em}
+
+/* integrantes */
+.team{display:grid;grid-template-columns:repeat(5,1fr);gap:24px}
+.person{background:var(--panel);border:1px solid var(--line);padding:34px 28px;min-height:440px;display:flex;flex-direction:column;gap:14px}
+.person .ini{font-family:var(--mono);font-size:56px;font-weight:700;color:var(--accent)}
+.person h3{font-size:36px;line-height:1.15;font-weight:500}
+.person .gh{font-family:var(--mono);font-size:21px;color:var(--muted);word-break:break-all}
+.person .rol{margin-top:auto;font-size:26px;line-height:1.35;color:var(--fg);border-top:1px solid var(--line);padding-top:18px}
+
+/* escenario */
+.fases{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
+.fase{background:var(--panel);border:1px solid var(--line);padding:34px}
+.fase .k{font-family:var(--mono);font-size:22px;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.fase .v{font-family:var(--mono);font-size:52px;white-space:nowrap;font-weight:700;color:var(--fg);margin:14px 0 8px;letter-spacing:-.02em}
+.fase p{font-size:27px;line-height:1.4}
+.axis{position:relative;height:120px;margin-top:18px;flex-shrink:0}
+.axis .line{position:absolute;left:0;right:0;top:44px;height:6px;background:var(--line)}
+.axis .seg1{position:absolute;left:0;top:44px;height:6px;width:46%;background:var(--accent)}
+.axis .seg2{position:absolute;left:46%;top:44px;height:6px;width:54%;background:var(--ok)}
+.axis .dot{position:absolute;top:34px;width:26px;height:26px;border-radius:50%;background:var(--bg);border:5px solid var(--fg);transform:translateX(-50%)}
+.axis .lab{position:absolute;top:70px;transform:translateX(-50%);font-family:var(--mono);font-size:22px;color:var(--muted);white-space:nowrap;text-align:center}
+.axis .lab.l{transform:none}
+.axis .lab.r{transform:translateX(-100%)}
+
+/* diagrama */
+.slide.dg{padding-top:96px;padding-bottom:100px}
+.dg h2{margin-bottom:40px}
+.flow{width:100%;height:auto;flex-shrink:0;display:block}
+.flow .nd{fill:var(--panel);stroke:var(--line);stroke-width:2}
+.flow .nd.hi{stroke:var(--accent)}
+.flow .nd.ok{stroke:var(--ok)}
+.flow .ln{stroke:var(--muted);stroke-width:2.5;fill:none}
+.flow .ln.acc{stroke:var(--accent)}
+.flow .ln.dash{stroke-dasharray:8 8;stroke:var(--muted)}
+.flow .t{fill:var(--fg);font:500 25px var(--display)}
+.flow .s{fill:var(--muted);font:400 19px var(--mono)}
+.flow .s2{fill:var(--muted);font:400 17px var(--mono)}
+.flow .s.ok{fill:var(--ok);font-size:22px;font-weight:700}
+.flow .n{fill:var(--accent);font:700 34px var(--mono)}
+
+/* arquitectura */
+.mods{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.mod{background:var(--panel);border:1px solid var(--line);padding:36px;display:flex;flex-direction:column;gap:18px}
+.mod .f{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--fg)}
+.mod .f span{color:var(--accent)}
+.mod p{font-size:28px;line-height:1.4}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:10px}
+.chip{font-family:var(--mono);font-size:21px;color:var(--fg);border:1px solid var(--line);padding:6px 14px}
+.flow{margin-top:40px;font-family:var(--mono);font-size:28px;color:var(--muted);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.flow i{font-style:normal;color:var(--accent)}
+.flow em{font-style:normal;color:var(--fg)}
+
+/* demo y validaciones */
+.split{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;flex:1;min-height:0}
+.term{background:#05080f;border:1px solid var(--line);padding:30px 34px;font-family:var(--mono);font-size:25px;line-height:1.55;color:#c7d2e6;overflow:hidden}
+.term .hd{color:var(--muted);font-size:20px;letter-spacing:.1em;margin-bottom:14px;text-transform:uppercase}
+.term .in{color:var(--accent)}
+.term .ok{color:var(--ok)}
+.term .err{color:#ff8a8a}
+.list{display:flex;flex-direction:column;gap:22px}
+.list li{list-style:none;display:grid;grid-template-columns:34px 1fr;gap:16px;font-size:30px;line-height:1.35}
+.list li::before{content:"";width:14px;height:14px;background:var(--accent);margin-top:14px}
+.list .m{font-family:var(--mono);color:var(--fg)}
+
+/* datos y gráfico */
+.dat{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:start}
+.dat .term{font-size:24px;line-height:1.5}
+.dat .term .k{color:var(--accent)}
+.dat .term .c{color:var(--muted)}
+.dat ul{margin-top:26px;display:flex;flex-direction:column;gap:14px}
+.dat li{list-style:none;font-size:28px;line-height:1.35;display:grid;grid-template-columns:30px 1fr;gap:14px}
+.dat li::before{content:"";width:14px;height:14px;background:var(--accent);margin-top:12px}
+.dat .shot{border:1px solid var(--line);background:#0c0c0c}
+.dat .shot img{display:block;width:100%;height:auto}
+.dat figcaption{font:400 20px var(--mono);color:var(--muted);padding:12px 18px;background:var(--panel)}
+
+/* cierre */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:6px}
+.card{background:var(--panel);border:1px solid var(--line);padding:36px}
+.card h3{font-size:40px;font-weight:500;margin-bottom:18px}
+.card li{list-style:none;font-size:28px;line-height:1.4;margin-top:12px}
+.card li::before{content:"› ";color:var(--accent);font-family:var(--mono)}
+
+/* comandos copiables */
+.cmd{display:flex;align-items:center;gap:20px;background:#05080f;border:1px solid var(--line);padding:18px 22px}
+.cmd code{flex:1;min-width:0;font-family:var(--mono);font-size:24px;line-height:1.45;color:#c7d2e6;white-space:pre-wrap;word-break:break-word}
+.cmd code::before{content:"> ";color:var(--accent)}
+.copy{flex-shrink:0;font:500 20px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--fg);background:var(--panel);border:1px solid var(--line);padding:12px 20px;cursor:pointer}
+.copy:hover{border-color:var(--accent)}
+.copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.copy.done{color:var(--ok);border-color:var(--ok)}
+.steps{display:flex;flex-direction:column;gap:30px}
+.step{display:grid;grid-template-columns:64px 1fr;gap:24px;align-items:start}
+.step .k{font-family:var(--mono);font-weight:700;font-size:30px;color:var(--bg);background:var(--accent);width:52px;height:52px;display:grid;place-items:center}
+.step h3{font-size:36px;font-weight:500;margin-bottom:12px}
+.step p{font-size:26px;line-height:1.35;margin-top:10px}
+.cmds{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+
+/* github + ia */
+.gh2{display:grid;grid-template-columns:960px 1fr;gap:48px;align-items:start}
+.gh2 .shot{border:1px solid var(--line);background:var(--panel)}
+.gh2 .shot img{display:block;width:100%;height:auto}
+.gh2 figcaption{font:400 20px var(--mono);color:var(--muted);padding:12px 18px}
+.gh2 .side{display:flex;flex-direction:column;gap:22px;min-width:0}
+.gh2 .tile{background:#fff;border:1px solid var(--line);height:150px;display:flex;align-items:center;justify-content:center;padding:20px}
+.gh2 .tile img{max-width:100%;max-height:100%;object-fit:contain}
+.gh2 p{font-size:28px;line-height:1.4}
+.gh2 .thx{font-size:44px;color:var(--fg);font-weight:500}
+
+/* hueco para la cámara (OBS): arriba a la derecha, 384x216. Tecla C para ver la guía */
+.camzone{position:absolute;top:32px;right:120px;width:384px;height:216px;border:3px dashed var(--accent);display:none;place-items:center;font:500 22px var(--mono);letter-spacing:.1em;color:var(--accent);z-index:20;pointer-events:none}
+.camzone.on{display:grid}
+/* nombre de quien habla (debajo del hueco de cámara). Tecla N */
+.speaker{position:absolute;top:252px;right:120px;width:384px;height:38px;display:none;align-items:center;gap:14px;padding:0 16px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);font:500 22px var(--display);color:var(--fg);z-index:20;pointer-events:none;white-space:nowrap;overflow:hidden}
+.speaker::before{content:"HABLA";font:500 15px var(--mono);letter-spacing:.14em;color:var(--accent)}
+.speaker.on{display:flex}
+#help{position:fixed;right:14px;bottom:10px;font:12px var(--mono);color:#56627a;z-index:5}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1. Portada -->
+<section class="slide cover">
+  <div class="grid"></div><img class="hero" src="assets/portada.webp" alt="Lanzamiento del cohete SLS con la nave Orion">
+  <div class="tag">Misión Artemis · Escenario 1</div>
+  <h1>Simulador de<br>ascenso del SLS</h1>
+  <p class="sub">Del reposo en la plataforma a 160 km de altitud, programado en C.</p>
+  <p class="meta">UTN FRRe · Algoritmos y Estructuras de Datos · ISI D · Laboratorio de C</p>
+</section>
+
+<!-- 2. Integrantes -->
+<section class="slide" data-speaker="María Teresa González">
+  <div class="tag">Equipo</div>
+  <h2>Cinco integrantes, cinco partes del proyecto.</h2>
+  <div class="team">
+    <div class="person"><div class="ini">ZR</div><h3>Zahira Nahir Ramirez</h3><div class="gh">@ZNR-dev</div><div class="rol">Base del proyecto, menú, coherencia de datos y diagrama de flujo.</div></div>
+    <div class="person"><div class="ini">LS</div><h3>Lucas German Sanabria</h3><div class="gh">@lsegecode</div><div class="rol">Cálculo de caída libre, gráfico de trayectoria y manejo de versionado.</div></div>
+    <div class="person"><div class="ini">MG</div><h3>María Teresa González</h3><div class="gh">@inmarittenmy18-commits</div><div class="rol">Gravedad, presentación de resultados e historial de ejecuciones.</div></div>
+    <div class="person"><div class="ini">VV</div><h3>Valentina Vicentin</h3><div class="gh">@valevic2017-source</div><div class="rol">Validaciones, ingreso seguro de datos y mensajes de error.</div></div>
+    <div class="person"><div class="ini">LC</div><h3>Luka Cabral Viola</h3><div class="gh">@pattovii</div><div class="rol">Cálculo de MRUV y ejecución de cada módulo por separado.</div></div>
+  </div>
+</section>
+
+<!-- 3. Escenario -->
+<section class="slide" data-speaker="María Teresa González">
+  <div class="tag">El problema</div>
+  <h2>El SLS acelera en dos fases.</h2>
+  <div class="fases">
+    <div class="fase"><div class="k">Fase 1 · motores + 2 SRB</div><div class="v">a = 20,0 m/s²</div><p>Parte del reposo (v = 0, y = 0). Dura 120 s, hasta el desacople de los SRB.</p></div>
+    <div class="fase"><div class="k">Fase 2 · motor del núcleo</div><div class="v">a = 12,5 m/s²</div><p>Sigue acelerando hasta h = 160 km, donde los motores se apagan. Sin resistencia del aire.</p></div>
+    <div class="fase"><div class="k">Si fallan los motores</div><div class="v">g = 9,80 m/s²</div><p>Caída libre: se calcula la altitud máxima antes de comenzar a caer.</p></div>
+  </div>
+  <div class="axis">
+    <div class="line"></div><div class="seg1"></div><div class="seg2"></div>
+    <div class="dot" style="left:0%"></div>
+    <div class="dot" style="left:46%"></div>
+    <div class="dot" style="left:100%"></div>
+    <div class="lab l" style="left:0">t = 0 s · y = 0</div>
+    <div class="lab" style="left:46%">t = 120 s · desacople SRB</div>
+    <div class="lab r" style="left:100%">h = 160 km · apagado</div>
+  </div>
+  <p style="margin-top:28px;font-size:30px;flex-shrink:0">El programa responde: rapidez y altitud al desacople, rapidez al apagado, altitud máxima en caída libre y aceleración en múltiplos de <b>g</b>.</p>
+</section>
+
+<!-- 4. Diagrama -->
+<section class="slide dg" data-speaker="María Teresa González">
+  <div class="tag">Flujo del programa</div>
+  <h2>Del menú a los resultados.</h2>
+  <svg class="flow" viewBox="0 0 1740 720" role="img" aria-label="Diagrama de flujo del menú principal y de las siete opciones">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker><marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <circle class="nd" cx="56" cy="386" r="42"/><text class="t" x="56" y="394" text-anchor="middle">Inicio</text>
+  <line class="ln acc" x1="98" y1="386" x2="128" y2="386" marker-end="url(#ar)"/>
+  <rect class="nd" x="130" y="336" width="220" height="100"/><text class="t" x="240" y="382" text-anchor="middle">Menú principal</text><text class="s" x="240" y="410" text-anchor="middle">Lee la opción</text>
+  <line class="ln acc" x1="350" y1="386" x2="396" y2="386" marker-end="url(#ar)"/>
+  <polygon class="nd" points="508,302 618,386 508,470 398,386"/><text class="t" x="508" y="382" text-anchor="middle">Opción</text><text class="s" x="508" y="410" text-anchor="middle">¿del 1 al 7?</text>
+  <path class="ln dash" d="M508 470 V520 H190 V436" marker-end="url(#am)"/>
+  <text class="s" x="350" y="508" text-anchor="middle">No: vuelve a pedir la opción</text>
+  <text class="s ok" x="660" y="374" text-anchor="middle">Sí</text>
+  <line class="ln acc" x1="618" y1="386" x2="700" y2="386"/>
+  <line class="ln acc" x1="700" y1="110" x2="700" y2="662"/>
+  <line class="ln acc" x1="700" y1="110" x2="740" y2="110" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="76" width="440" height="68"/>
+  <text class="n" x="768" y="121">1</text>
+  <text class="t" x="818" y="107">Datos personalizados</text><text class="s" x="818" y="133">Módulo 1 · valida cada dato</text>
+  <line class="ln acc" x1="700" y1="202" x2="740" y2="202" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="168" width="440" height="68"/>
+  <text class="n" x="768" y="213">2</text>
+  <text class="t" x="818" y="199">Usar datos del enunciado</text><text class="s" x="818" y="225">Módulo 1 · valores oficiales</text>
+  <line class="ln acc" x1="700" y1="294" x2="740" y2="294" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="260" width="440" height="68"/>
+  <text class="n" x="768" y="305">3</text>
+  <text class="t" x="818" y="291">Resultados detallados</text><text class="s" x="818" y="317">Módulo 5 · g y carga aparente</text>
+  <line class="ln acc" x1="700" y1="386" x2="740" y2="386" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="352" width="440" height="68"/>
+  <text class="n" x="768" y="397">4</text>
+  <text class="t" x="818" y="383">Historial de simulaciones</text><text class="s" x="818" y="409">Ejecuciones registradas</text>
+  <line class="ln acc" x1="700" y1="478" x2="740" y2="478" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="444" width="440" height="68"/>
+  <text class="n" x="768" y="489">5</text>
+  <text class="t" x="818" y="475">Gráfico de trayectoria</text><text class="s" x="818" y="501">Gráfico ASCII</text>
+  <line class="ln acc" x1="700" y1="570" x2="740" y2="570" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="536" width="440" height="68"/>
+  <text class="n" x="768" y="581">6</text>
+  <text class="t" x="818" y="567">Un módulo por separado</text><text class="s" x="818" y="593">Submenú con los módulos 1 a 5</text>
+  <line class="ln acc" x1="700" y1="662" x2="740" y2="662" marker-end="url(#ar)"/>
+  <rect class="nd" x="742" y="628" width="440" height="68"/>
+  <text class="n" x="768" y="673">7</text>
+  <text class="t" x="818" y="659">Salir</text><text class="s" x="818" y="685">Cierra la sesión</text>
+  <line class="ln" x1="1182" y1="110" x2="1202" y2="110"/><line class="ln" x1="1182" y1="202" x2="1202" y2="202"/><line class="ln" x1="1202" y1="110" x2="1202" y2="202"/>
+  <line class="ln acc" x1="1202" y1="156" x2="1220" y2="156" marker-end="url(#ar)"/>
+  <rect class="nd hi" x="1222" y="86" width="260" height="140"/><text class="t" x="1352" y="124" text-anchor="middle">Simular</text><text class="s2" x="1352" y="152" text-anchor="middle">Módulo 2 · coherencia</text><text class="s2" x="1352" y="176" text-anchor="middle">Módulo 3 · fase 2 MRUV</text><text class="s2" x="1352" y="200" text-anchor="middle">Módulo 4 · caída libre</text>
+  <line class="ln acc" x1="1482" y1="156" x2="1520" y2="156" marker-end="url(#ar)"/>
+  <rect class="nd" x="1522" y="122" width="178" height="68"/><text class="t" x="1611" y="153" text-anchor="middle">Registrar</text><text class="s" x="1611" y="179" text-anchor="middle">en historial</text>
+  <line class="ln dash" x1="1182" y1="294" x2="1716" y2="294"/>
+  <text class="s" x="1210" y="282">Requiere simular antes</text>
+  <line class="ln dash" x1="1182" y1="386" x2="1716" y2="386"/>
+  <line class="ln dash" x1="1182" y1="478" x2="1716" y2="478"/>
+  <text class="s" x="1210" y="466">Requiere simular antes</text>
+  <line class="ln dash" x1="1182" y1="570" x2="1716" y2="570"/>
+  <text class="s" x="1210" y="558">Cada módulo pide solo sus datos</text>
+  <line class="ln acc" x1="1182" y1="662" x2="1220" y2="662" marker-end="url(#ar)"/>
+  <rect class="nd" x="1222" y="628" width="260" height="68"/><text class="t" x="1352" y="659" text-anchor="middle">Reporte final</text><text class="s" x="1352" y="685" text-anchor="middle">Resumen de la sesión</text>
+  <line class="ln acc" x1="1482" y1="662" x2="1542" y2="662" marker-end="url(#ar)"/>
+  <circle class="nd ok" cx="1590" cy="662" r="46"/><text class="t" x="1590" y="670" text-anchor="middle">Fin</text>
+  <line class="ln dash" x1="1700" y1="156" x2="1716" y2="156"/>
+  <path class="ln dash" d="M1716 570 V50 H290 V336" marker-end="url(#am)"/>
+  <text class="s" x="1000" y="34" text-anchor="middle">↺ Las opciones 1 a 6 terminan y vuelven al menú principal</text>
+  </svg>
+</section>
+
+<!-- 5. Arquitectura -->
+<section class="slide" data-speaker="Valentina Vicentin">
+  <div class="tag">Arquitectura en C</div>
+  <h2>Tres módulos con responsabilidades separadas.</h2>
+  <div class="mods">
+    <div class="mod"><div class="f">main<span>.c</span></div><p>Menú interactivo y control del flujo general. No contiene cálculos.</p><div class="chips"><span class="chip">menú</span><span class="chip">ciclo principal</span></div></div>
+    <div class="mod"><div class="f">artemis<span>.c / .h</span></div><p>Lógica física, structs de simulación, historial y gráfico de trayectoria.</p><div class="chips"><span class="chip">struct</span><span class="chip">arreglos</span><span class="chip">punteros</span></div></div>
+    <div class="mod"><div class="f">validaciones<span>.c / .h</span></div><p>Lectura segura de enteros y flotantes, coma o punto decimal, mensajes de error.</p><div class="chips"><span class="chip">fgets</span><span class="chip">rangos</span></div></div>
+  </div>
+  <div class="flow"><em>main.c</em><i>→</i><em>validaciones</em><i>→</i><em>artemis</em><i>→</i><em>resultados por consola</em></div>
+</section>
+
+<!-- 6. Datos y gráfico -->
+<section class="slide" data-speaker="Valentina Vicentin">
+  <div class="tag">Estructuras de datos</div>
+  <h2 style="margin-bottom:36px">Resultados, historial y gráfico.</h2>
+  <div class="dat">
+    <div>
+      <div class="term">
+        <div class="hd">artemis.c · historial</div>
+        <span class="k">typedef struct</span> {<br>
+        &nbsp;&nbsp;unsigned int id;<br>
+        &nbsp;&nbsp;TipoSimulacion tipo;<br>
+        &nbsp;&nbsp;double apogeo_km;<br>
+        } RegistroSimulacion;<br><br>
+        <span class="k">static</span> RegistroSimulacion<br>
+        &nbsp;&nbsp;historial[MAX_HISTORIAL]; <span class="c">/* 100 */</span>
+      </div>
+      <ul>
+        <li><span><b>Structs:</b> guardan los datos y los resultados de cada simulación.</span></li>
+        <li><span><b>Arreglo:</b> conserva el historial de ejecuciones.</span></li>
+        <li><span><b>Punteros:</b> pasan y modifican datos entre funciones.</span></li>
+      </ul>
+    </div>
+    <figure class="shot"><img src="assets/grafico.png" alt="Gráfico ASCII de la trayectoria completa del SLS en la consola"><figcaption>Gráfico ASCII de la trayectoria, en la consola</figcaption></figure>
+  </div>
+</section>
+
+<!-- Cómo ejecutarlo -->
+<section class="slide" data-speaker="Lucas German Sanabria">
+  <div class="tag">Cómo ejecutarlo</div>
+  <h2>Clonar, compilar y ejecutar.</h2>
+  <div class="steps">
+    <div class="step"><div class="k">1</div><div><h3>Clonar el repositorio</h3><div class="cmd"><code>git clone https://github.com/lsegecode/ACDC.git; cd ACDC</code><button class="copy" type="button" data-copy="git clone https://github.com/lsegecode/ACDC.git; cd ACDC">Copiar</button></div></div></div>
+    <div class="step"><div class="k">2</div><div><h3>Compilar con el Makefile</h3><div class="cmd"><code>make</code><button class="copy" type="button" data-copy="make">Copiar</button></div><p>Requiere GCC y make (en Windows, MinGW-w64 o MSYS2, donde el comando puede ser <b>mingw32-make</b>). El <b>Makefile</b> genera el ejecutable <b>simulador</b>.</p></div></div>
+    <div class="step"><div class="k">3</div><div><h3>Ejecutar el programa</h3><div class="cmd"><code>.\simulador.exe</code><button class="copy" type="button" data-copy=".\simulador.exe">Copiar</button></div><p>En Linux o macOS: <b>./simulador</b>.</p></div></div>
+  </div>
+</section>
+
+<!-- 6. Demo -->
+<section class="slide" data-speaker="Lucas German Sanabria">
+  <div class="tag">Demostración</div>
+  <h2 style="margin-bottom:28px">Un caso completo con los datos del enunciado.</h2>
+  <div class="split">
+    <div class="term">
+      <div class="hd">simulador · ejemplo</div>
+      Aceleración fase 1 (m/s²): <span class="in">20</span><br>
+      Tiempo de desacople (s): <span class="in">120</span><br>
+      Aceleración fase 2 (m/s²): <span class="in">12,5</span><br>
+      Altitud de apagado (m): <span class="in">160000</span><br><br>
+      <span class="ok">Desacople:</span> v = 2400,0 m/s · y = 144,0 km<br>
+      <span class="ok">Apagado:</span> v = 2481,9 m/s<br>
+      <span class="ok">Altitud máxima:</span> 474,3 km<br>
+      <span class="ok">Aceleración máx.:</span> 2,04 g
+    </div>
+    <ul class="list">
+      <li>Simulación completa desde el menú.</li>
+      <li>Resultados y gráfico ASCII de la trayectoria.</li>
+      <li>Historial de ejecuciones guardado.</li>
+      <li>Cada módulo se ejecuta por separado.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7. Validaciones -->
+<section class="slide" data-speaker="Zahira Nahir Ramirez">
+  <div class="tag">Validaciones</div>
+  <h2>Ante una entrada errónea, el programa pide el dato de nuevo.</h2>
+  <div class="split">
+    <div class="term">
+      <div class="hd">entradas inválidas</div>
+      Aceleración (m/s²): <span class="in">abc</span><br>
+      <span class="err">[!] Ingrese un número válido.</span><br>
+      Aceleración (m/s²): <span class="in">-5</span><br>
+      <span class="err">[!] El valor debe ser mayor que 0.</span><br>
+      Aceleración (m/s²): <span class="in">(vacío)</span><br>
+      <span class="err">[!] No ingresó ningún dato.</span><br>
+      Aceleración (m/s²): <span class="in">20,0</span><br>
+      <span class="ok">Dato aceptado.</span>
+    </div>
+    <ul class="list">
+      <li><span><span class="m">Tipo:</span> letras en lugar de números.</span></li>
+      <li><span><span class="m">Rango:</span> negativos y valores fuera de dominio.</span></li>
+      <li><span><span class="m">Vacío:</span> líneas sin contenido.</span></li>
+      <li><span><span class="m">Formato:</span> acepta coma o punto decimal.</span></li>
+      <li><span>Sin cierres inesperados ni bucles infinitos.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 9. GitHub e IA -->
+<section class="slide" data-speaker="Luka Cabral Viola">
+  <div class="tag">Cómo trabajamos</div>
+  <h2>GitHub y herramientas de IA.</h2>
+  <div class="gh2">
+    <figure class="shot"><img src="assets/github.png" alt="Repositorio ACDC en GitHub: 74 commits y 6 contribuyentes"><figcaption>Repositorio ACDC · ramas por módulo y commits de todo el equipo</figcaption></figure>
+    <div class="side">
+      <figure class="logo"><div class="tile"><img src="assets/claude.png" alt="Claude"></div></figure>
+      <figure class="logo"><div class="tile"><img src="assets/gemini.png" alt="Gemini"></div></figure>
+      <p>La IA fue un apoyo. Revisamos, probamos y adaptamos todo el código. El registro completo está en el README.</p>
+      <p class="thx">Gracias.</p>
+    </div>
+  </div>
+</section>
+
+<div class="camzone" id="camzone">CÁMARA</div>
+<div class="speaker" id="speaker"></div>
+<div class="hud"><span>ACDC · ESCENARIO 1</span><span id="count">1 / 10</span></div>
+<div class="bar" id="bar"></div>
+</div>
+<div id="help">← → navegar · F pantalla completa · C guía de cámara · N nombre</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var stage=document.getElementById('stage'),count=document.getElementById('count'),bar=document.getElementById('bar');
+  var i=0,showName=true,sp=document.getElementById('speaker');
+  function nameplate(){var n=slides[i].getAttribute('data-speaker')||'';sp.textContent=n;sp.classList.toggle('on',showName&&!!n)}
+  function fit(){
+    var s=Math.min(innerWidth/1920,innerHeight/1080);
+    stage.style.transform='translate(-50%,-50%) scale('+s+')';
+  }
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(el,k){el.classList.toggle('active',k===i)});
+    count.textContent=(i+1)+' / '+slides.length;
+    nameplate();
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    try{history.replaceState(null,'','#'+(i+1))}catch(e){}
+  }
+  addEventListener('resize',fit);
+  addEventListener('keydown',function(e){
+    if(document.activeElement&&document.activeElement.classList.contains('copy')&&(e.key===' '||e.key==='Enter'))return;
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(e.key)>-1){e.preventDefault();go(i+1)}
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(e.key)>-1){e.preventDefault();go(i-1)}
+    else if(e.key==='c'||e.key==='C')document.getElementById('camzone').classList.toggle('on');
+    else if(e.key==='n'||e.key==='N'){showName=!showName;nameplate()}
+    else if(e.key==='Home')go(0);
+    else if(e.key==='End')go(slides.length-1);
+    else if(e.key==='f'||e.key==='F'){
+      if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
+    }
+  });
+  addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.copy');
+    if(b){
+      var t=b.getAttribute('data-copy'),ok=function(){b.textContent='Copiado';b.classList.add('done');setTimeout(function(){b.textContent='Copiar';b.classList.remove('done')},1600)};
+      var fb=function(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(x){}document.body.removeChild(a)};
+      try{navigator.clipboard.writeText(t).then(ok,fb)}catch(x){fb()}
+      return;
+    }
+    go(e.clientX<innerWidth*0.25?i-1:i+1)});
+  fit();
+  var h=parseInt((location.hash||'').slice(1),10);
+  go(isNaN(h)?0:h-1);
+})();
+</script>
+</body>
+</html>
