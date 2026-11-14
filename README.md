@@ -42,8 +42,25 @@ Registro de Uso de Inteligencia Artificial
   - Revisión de casos de prueba físicos basados en las ecuaciones del enunciado.
 - **Validación:** Todo el código generado por IA fue revisado, comprendido, integrado y adaptado por nosotros para garantizar su correcto funcionamiento y cumplimiento con los parámetros de la cátedra de Algoritmos y Estructuras de Datos.
 
-**Diagrama de Flujo**
+**Diagramas de flujo detallados**
 
-![Diagrama de flujo](Documentacion/Flujo_de_trabajo.png)
+Los tres diagramas siguientes se leen por separado y cubren el menú, la cadena de simulación y las validaciones. 
 
-_Figura 1: flujo del menú principal y de los módulos de la simulación._
+### 1. Menú principal
+
+[![Diagrama del menú principal](Documentacion/flujo_menu.png)](Documentacion/flujo_menu.png)
+
+_Figura 2: un solo rombo `¿Opción?` con las siete salidas; `A` vuelve a mostrar el menú._
+
+### 2. Simulación (módulos 2, 3 y 4)
+
+[![Diagrama de la simulación](Documentacion/flujo_simulacion.png)](Documentacion/flujo_simulacion.png)
+
+_Figura 3: la fase 2 existe únicamente si `y1 < h`; si no, la velocidad se calcula solo con la fase 1._
+
+### 3. Ingreso y validación de datos (módulo 1)
+
+[![Diagrama de validaciones](Documentacion/flujo_validaciones.png)](Documentacion/flujo_validaciones.png)
+
+_Figura 4: lectura de los cinco datos, valores por defecto, errores físicos, unidad de altitud y resumen editable (`B` vuelve a leer el dato)._
+
